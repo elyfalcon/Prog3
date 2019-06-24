@@ -29,6 +29,20 @@ public static function ValidarTipo($tipo)
 		return $retorno;
 	}
 
+	public function isEqual($pizza)
+	{
+		if(strtoupper($this->tipo) == strtoupper($pizza->tipo) && strtoupper($this->sabor) == strtoupper($pizza->sabor))
+		{
+			$isEqual = true;
+		}
+		else
+		{
+			$isEqual = false;
+		}
+
+		return $isEqual;
+	}
+
 public static function SiguienteId($arrayPizzas)
 	{
 		$proximoId = 0;
@@ -61,6 +75,22 @@ public static function TraerId($ListaPizzas, $tipo, $sabor)
 
 		return $id;
 	}
+	public static function HayStock($ListaPizzas, $tipo, $sabor, $cantidad)
+	{
+		$stock = -1;
+
+		foreach ($ListaPizzas as $pizza)
+		{
+			if(strtoupper($pizza->tipo) == strtoupper($tipo) && strtoupper($pizza->sabor) == strtoupper($sabor))
+			{
+				$stock = $pizza->cantidad - $cantidad;
+				break;
+			}
+		}
+
+		return $stock;
+	}
+
 
 public static function LeerJson($archivo)
 {
@@ -79,6 +109,7 @@ public static function LeerJson($archivo)
     }
    return $lista; 
 }
+
 public static function LeerTxt($archivoTxt)
 	{
 		$archivo = fopen($archivoTxt, "r");
@@ -97,16 +128,17 @@ public static function LeerTxt($archivoTxt)
 				array_push($ListaPizzas, $pizza);
 			}
 		}
+	}
 
 public static function AgregarPizza($sabor,$tipo,$precio,$cantidad,$foto)
 {
 	//$listaP=LeerJson(archivo);
-	if(Pizzeria::ValidarTipo($tipo) !=1)
+	if(ValidarTipo($tipo) !=1)
 	{
 		echo "<br> El tipo debe ser molde o piedra";
 
 	}
-	if(Pizzeria::validarSabor($sabor)!=1)
+	if(ValidarSabor($sabor)!=1)
 	{
 		echo "<br> El sabor puede ser jamon, muzza o especial";
 
@@ -211,7 +243,7 @@ public static function ExistePizza($listaProductos,$sabor,$tipo)
  	return $retorno;
 
  }//fin foreach
-
+}
 
  public static function VentaPizza($sabor,$tipo,$cantidad,$email)
  {
@@ -224,19 +256,49 @@ public static function ExistePizza($listaProductos,$sabor,$tipo)
 		{
 			echo "<br>El Sabor de Pizza incorrecto. Ingresó $sabor pero debe ser MUZZA, o JAMON, o ESPECIAL";
 		}
-		else
-			//if() ver tema de foto
-			$id = TraerId(LeerPizzas("archivos/Pizza.txt"), $tipo, $sabor);
-
-			if($id == 0)
+		
+		$ListaPizzas = LeerTxt("archivos/Pizza.txt");
+		$hayPizza=ExistePizza($ListaPizzas,$sabor,$tipo);
+		$pizza = new Pizza($id, $tipo, $sabor, $cantidad, $precio);
+		if(!empty($hayPizza))
+		{
+			$stockreal=HayStock($ListaPizzas,$tipo,$sabor,$cantidad); //verifico si puedo vender
+			if(stockreal >=0)
 			{
-				echo "<br>La pizza $tipo - $sabor no existe en el stock<br>";
+				$archivo = fopen("archivos/Venta.txt", "a");
+				$arrayVenta = $pizza->toArray();
+				$arrayVenta["email"] = $mail;
+				$linea = json_encode($arrayVenta);
+				fputs($archivo, $linea . "\n");
+				fclose($archivo);
+
+				$archivo = fopen("archivos/Pizza.txt", "w");
+				foreach ($ListaPizzas as $unaPizza)
+				{
+					if($unaPizza->isEqual($pizza))
+					{
+						//Guardo en el stock actual ($unaPizza) el remanente luego de la venta
+						$unaPizza->setCantidad($stockreal);
+						
+					}
+					$linea = json_encode($unaPizza->toArray());
+					fputs($archivo, $linea . "\n");
+				}	
+				fclose($archivo);
+
+
 			}
 			else
 			{
-
-			$pizza = new Pizza($id, $tipo, $sabor, $cantidad, $precio);
+				echo "<br>No se puede vender la cantidad pedida, solo hay: ";
+				$retorno = $pizza->getCantidad() + $stockreal;
 			}
+
+
+		}
+
+	//	retun $retorno;
+
 
  }
 
@@ -264,6 +326,6 @@ public static function ExistePizza($listaProductos,$sabor,$tipo)
 
 
 
-}
+
 
 ?>
