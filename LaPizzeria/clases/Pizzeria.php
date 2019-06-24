@@ -17,7 +17,7 @@ public static function ValidarTipo($tipo)
 
 		return $retorno;
 	}
-	public static function validarSabor($sabor)
+	public static function ValidarSabor($sabor)
 	{
 		$retorno = 0;
 
@@ -29,7 +29,7 @@ public static function ValidarTipo($tipo)
 		return $retorno;
 	}
 
-public static function siguienteId($arrayPizzas)
+public static function SiguienteId($arrayPizzas)
 	{
 		$proximoId = 0;
 		if (isset($arrayPizzas))
@@ -44,6 +44,22 @@ public static function siguienteId($arrayPizzas)
 		}
 
 		return $proximoId + 1;
+	}
+
+public static function TraerId($ListaPizzas, $tipo, $sabor)
+	{
+		$id = 0;
+
+		foreach ($ListaPizzas as $pizza)
+		{
+			if(strtoupper($pizza->tipo) == strtoupper($tipo) && strtoupper($pizza->sabor) == strtoupper($sabor))
+			{
+				$id = $pizza->id;
+				break;
+			}
+		}
+
+		return $id;
 	}
 
 public static function LeerJson($archivo)
@@ -63,6 +79,24 @@ public static function LeerJson($archivo)
     }
    return $lista; 
 }
+public static function LeerTxt($archivoTxt)
+	{
+		$archivo = fopen($archivoTxt, "r");
+		$ListaPizzas = array();
+		$arrayDatos = array();
+		$linea = "";
+
+		while (!feof($archivo))
+		{
+			$linea = fgets($archivo);
+
+			if ((string)$linea != "") //Evito las lineas vacias
+			{
+				$arrayDatos = json_decode($linea, true); //El segundo parametro en true para que trate la salida como array.
+				$pizza = new Pizza($arrayDatos["id"], $arrayDatos["tipo"], $arrayDatos["sabor"], $arrayDatos["cantidad"], $arrayDatos["precio"]);
+				array_push($ListaPizzas, $pizza);
+			}
+		}
 
 public static function AgregarPizza($sabor,$tipo,$precio,$cantidad,$foto)
 {
@@ -79,7 +113,7 @@ public static function AgregarPizza($sabor,$tipo,$precio,$cantidad,$foto)
 	}
 
 	//$prod=self::ExistePizza($listaP,$sabor,$tipo);
-	$id = Pizza::siguienteId($prod);
+	$id = SiguienteId($prod);
 	$pizza = new Pizza($id, $tipo, $sabor, $cantidad, $precio);//armo la pizza con el nuevo id
 
 	$listaP=LeerJson($archivoPizza);
@@ -116,12 +150,12 @@ $retorno="no hay";
 $haysabor=false;
 $haytipo=false;
 
-if(Pizzeria::ValidarTipo($tipo) !=1)
+if(ValidarTipo($tipo) !=1)
 	{
 		echo "<br> El tipo debe ser molde o piedra";
 
 	}
-	if(Pizzeria::validarSabor($sabor)!=1)
+	if(ValidarSabor($sabor)!=1)
 	{
 		echo "<br> El sabor puede ser jamon, muzza o especial";
 
@@ -177,6 +211,34 @@ public static function ExistePizza($listaProductos,$sabor,$tipo)
  	return $retorno;
 
  }//fin foreach
+
+
+ public static function VentaPizza($sabor,$tipo,$cantidad,$email)
+ {
+
+	if(ValidarTipo($tipo) != 1)
+		{
+			echo "<br>Tipo de Pizza incorrecto. Ingresó $tipo pero debe ser MOLDE o PIEDRA";
+		}
+		else if(ValidarSabor($sabor) != 1)
+		{
+			echo "<br>El Sabor de Pizza incorrecto. Ingresó $sabor pero debe ser MUZZA, o JAMON, o ESPECIAL";
+		}
+		else
+			//if() ver tema de foto
+			$id = TraerId(LeerPizzas("archivos/Pizza.txt"), $tipo, $sabor);
+
+			if($id == 0)
+			{
+				echo "<br>La pizza $tipo - $sabor no existe en el stock<br>";
+			}
+			else
+			{
+
+			$pizza = new Pizza($id, $tipo, $sabor, $cantidad, $precio);
+			}
+
+ }
 
 }
 
