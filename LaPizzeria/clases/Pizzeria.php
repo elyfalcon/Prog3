@@ -132,7 +132,7 @@ public static function LeerTxt($archivoTxt)
 
 public static function AgregarPizza($sabor,$tipo,$precio,$cantidad,$foto)
 {
-	//$listaP=LeerJson(archivo);
+	
 	if(ValidarTipo($tipo) !=1)
 	{
 		echo "<br> El tipo debe ser molde o piedra";
@@ -144,7 +144,7 @@ public static function AgregarPizza($sabor,$tipo,$precio,$cantidad,$foto)
 
 	}
 
-	//$prod=self::ExistePizza($listaP,$sabor,$tipo);
+	
 	$id = SiguienteId($prod);
 	$pizza = new Pizza($id, $tipo, $sabor, $cantidad, $precio);//armo la pizza con el nuevo id
 
@@ -168,9 +168,12 @@ public static function AgregarPizza($sabor,$tipo,$precio,$cantidad,$foto)
 	{
 	$aux = explode(".", $Foto);
     $ext = $aux[sizeof($aux) - 1];
-    $destino = "./fotos/" . $sabor .  $tipo . "." . $ext;
+    $destino = "ImagenesDePizzas/" . $sabor .  $tipo . "." . $ext;
+   // $nombre=
+    require_once 'upload_file.php';
+    upload_file::UploadF($destino,"ImagenesDePizzas");
      $nuevoPizza->setFoto($destino);
-    //cargarimagen($foto,$aux,$destino)
+    
 	}
 	GuardarJson($ListaP,"./archivos/Pizza.txt");
 

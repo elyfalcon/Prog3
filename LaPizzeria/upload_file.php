@@ -1,5 +1,9 @@
 <?php
+class UploadFoto{
 //Tamaño y Formatos permitidos
+
+ public static function UploadF($archivo,$destino) 
+ {
 
 if ((($_FILES["file"]["type"] == "image/gif")
 || ($_FILES["file"]["type"] == "image/jpeg")
@@ -27,21 +31,21 @@ if ((($_FILES["file"]["type"] == "image/gif")
 
      //Verifica si el archivo existe
 
-    if (file_exists("img/" . $_FILES["file"]["name"]))
+    if (file_exists("$destino/" . $_FILES["file"]["name"]))
       {
       echo $_FILES["file"]["name"] . " already exists. ";
       }
     else
       {		
 
-      move_uploaded_file($_FILES["file"]["tmp_name"], "img/" . $_FILES["file"]["name"]);
+      move_uploaded_file($_FILES["file"]["tmp_name"], "$destino/" . $_FILES["file"]["name"]);
 
-	echo "Almacenado en: " . "img/" . $_FILES["file"]["name"];
+	echo "Almacenado en: " . "$destino/" . $_FILES["file"]["name"];
 
 	$nombreArchivo = $_FILES["file"]["name"];
 
         // Muestra la imagen subida
-        echo "<img src='fotos/$nombreArchivo'>";
+        echo "<$destino src='$destino/$nombreArchivo'>";
       }
     }
   }
@@ -49,3 +53,5 @@ else
   {
   echo "Archivo invalido, Solamente archivos GIF, JPG y PNG son permitidos";
   }
+}
+}

@@ -1,5 +1,7 @@
 <?php
+ require_once './clases/Pizzeria.php';
 
+date_default_timezone_set('America/Argentina/Buenos_Aires');
 $method = $_SERVER['REQUEST_METHOD'];
 echo $method;
 
@@ -8,7 +10,8 @@ switch ($method) {
 	echo "dentro del GET";
 		switch (key($_GET)) {
 			case "PizzaCarga":
-				require_once ('./PizzaCarga.php');
+				require_once ('PizzaCarga.php');
+				PizzaCarga::AgregarPizza($_GET["tipo"], $_GET["sabor"], $_GET["cantidad"], $_GET["precio"]);
 
 				echo "PizzaCarga";
 				break;
@@ -18,20 +21,32 @@ switch ($method) {
 	case "POST":
             switch (key($_POST)) {
                 case 'consultarPizza':
-                    require_once './PizzaConsultar.php';
+                    require_once 'PizzaConsultar.php';
                     break;
                 case 'altaPizza':
-                    require_once './altaPizza.php';
+                    require_once 'altaPizza.php';
                     break;
                 case 'altaVenta':
                     if (isset($_FILES["foto"])) {
-                        require_once 'manejadores/AltaVentaFoto.php';
+                        require_once '/AltaVentaFoto.php';
                     } else {
-                        require_once 'manejadores/AltaVenta.php';
+                        require_once '/AltaVenta.php';
                     }
                     break;
             }
             break;
+    case "PUT":
+			parse_str(file_get_contents("php://input"), $_PUT);
+
+			switch (key($_PUT))
+			{
+				case "carga":
+					require_once("PizzaCargaPlus.php");
+
+					PizzaCargaPlus::AltaPlus($_PUT["tipo"], $_PUT["sabor"], $_PUT["cantidad"], $_PUT["precio"]);
+					break;
+			}
+			break;
 
 	default:
 		# code...

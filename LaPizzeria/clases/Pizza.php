@@ -20,6 +20,7 @@ public function __constructor($sabor,$tipo,$precio,$cantidad,$foto='no_foto.jpg'
   $this->_id=$id;
 
 }
+//getters y setters
 
 public function getSabor(){
         return $this->_sabor;
@@ -68,7 +69,7 @@ public function setFoto($foto)
 {
   return $this->_foto=$foto;
 }
-
+//end getters y setters
 
 public function MostrarPizza()
 {
